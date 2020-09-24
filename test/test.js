@@ -7,3 +7,5 @@ test('loading of schedules from json', () => {
   expect(orchestration.schedules.length).toEqual(1);
   expect(orchestration.schedules[0].name).toEqual('local-ckan-harvester/process_all');
 })
+
+// TODO: Test if a job is fired??

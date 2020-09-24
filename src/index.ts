@@ -16,6 +16,9 @@ const config = JSON.parse(
 );
 
 export const schedules: schedule.Job[] = [];
+export const scheduleMessages: {
+  [key: string]: {time: Date; url: string; message: string}[];
+} = {};
 
 config.forEach(
   (app: {
@@ -45,6 +48,7 @@ config.forEach(
       console.error(`Could not find port number for app: ${app.name}`, pm2);
     }
 
+    scheduleMessages[app.name] = [];
     schedules.push(
       schedule.scheduleJob(app.name, rule, () => {
         const url =
@@ -68,6 +72,12 @@ config.forEach(
             }
           })
           .then(json => {
+            // TODO: store in logfile or db ? testing
+            scheduleMessages[app.name].push({
+              time: new Date(),
+              url: url,
+              message: JSON.stringify(json),
+            });
             console.log(new Date(), url, json);
           })
           .catch(err => {

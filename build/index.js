@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.schedules = void 0;
+exports.scheduleMessages = exports.schedules = void 0;
 const schedule = require("node-schedule");
 const pm2 = require("local-pm2-config");
 const node_fetch_1 = require("node-fetch");
@@ -11,6 +11,7 @@ const fs = require("fs");
 dotenv.config({ path: path.join(__dirname, '../.env') });
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, process.env.CONFIG || 'config.json'), 'utf8'));
 exports.schedules = [];
+exports.scheduleMessages = {};
 config.forEach((app) => {
     const rule = new schedule.RecurrenceRule();
     rule.dayOfWeek = app.dayOfWeek;
@@ -25,6 +26,7 @@ config.forEach((app) => {
     if (port === 0) {
         console.error(`Could not find port number for app: ${app.name}`, pm2);
     }
+    exports.scheduleMessages[app.name] = [];
     exports.schedules.push(schedule.scheduleJob(app.name, rule, () => {
         const url = `localhost:${port}` +
             `/${app.query.url}` +
@@ -44,6 +46,11 @@ config.forEach((app) => {
             }
         })
             .then(json => {
+            exports.scheduleMessages[app.name].push({
+                time: new Date(),
+                url: url,
+                message: JSON.stringify(json),
+            });
             console.log(new Date(), url, json);
         })
             .catch(err => {
