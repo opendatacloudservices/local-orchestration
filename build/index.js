@@ -43,6 +43,7 @@ exports.runJob = (app, trans) => {
     });
 };
 const initTrans = local_microservice_1.startTransaction({
+    type: 'system',
     name: 'setup',
 });
 const taskMap = {};
@@ -65,8 +66,7 @@ try {
         app.port = port;
         exports.schedules.push(schedule.scheduleJob(app.name, rule, () => {
             const trans = local_microservice_1.startTransaction({
-                type: 'job',
-                action: 'schedule',
+                type: 'schedule',
                 name: app.name,
             });
             exports.runJob(app, trans);
@@ -102,9 +102,8 @@ catch (err) {
  */
 local_microservice_1.api.get('/task/:taskName', async (req, res) => {
     const trans = local_microservice_1.startTransaction({
-        type: 'job',
-        action: 'get',
-        name: req.params.taskName,
+        type: 'get',
+        name: 'task/' + req.params.taskName,
     });
     if ('taskName' in req.params && req.params.taskName in taskMap) {
         await exports.runJob(config[taskMap[req.params.taskName]], trans);

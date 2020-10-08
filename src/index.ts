@@ -67,6 +67,7 @@ export const runJob = (
 };
 
 const initTrans = startTransaction({
+  type: 'system',
   name: 'setup',
 });
 
@@ -97,8 +98,7 @@ try {
     schedules.push(
       schedule.scheduleJob(app.name, rule, () => {
         const trans = startTransaction({
-          type: 'job',
-          action: 'schedule',
+          type: 'schedule',
           name: app.name,
         });
         runJob(app, trans);
@@ -135,9 +135,8 @@ try {
  */
 api.get('/task/:taskName', async (req, res) => {
   const trans = startTransaction({
-    type: 'job',
-    action: 'get',
-    name: req.params.taskName,
+    type: 'get',
+    name: 'task/' + req.params.taskName,
   });
   if ('taskName' in req.params && req.params.taskName in taskMap) {
     await runJob(config[taskMap[req.params.taskName]], trans);
