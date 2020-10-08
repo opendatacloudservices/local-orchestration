@@ -4,7 +4,7 @@
     "service": "local-ckan-harvester",
     "dayOfWeek": [4],
     "hour": 16,
-    "minute": 18,
+    "minute": 46,
     "query": {
       "url": "process/all",
       "params":[]

@@ -97,8 +97,9 @@ try {
     schedules.push(
       schedule.scheduleJob(app.name, rule, () => {
         const trans = startTransaction({
-          name: 'schedule/job',
-          type: app.name,
+          type: 'job',
+          action: 'schedule',
+          name: app.name,
         });
         runJob(app, trans);
       })
@@ -134,13 +135,13 @@ try {
  */
 api.get('/task/:taskName', async (req, res) => {
   const trans = startTransaction({
-    name: 'manual/job',
-    type: 'get',
-    subtype: req.params.taskName,
+    type: 'job',
+    action: 'get',
+    name: req.params.taskName,
   });
   if ('taskName' in req.params && req.params.taskName in taskMap) {
     await runJob(config[taskMap[req.params.taskName]], trans);
-    res.status(200).json({message: 'Processing completed'});
+    res.status(200).json({message: 'Task called'});
   } else {
     const err = new Error(
       'task requires a param /task/:taskName that is included in the config: ' +
