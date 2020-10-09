@@ -9,5 +9,16 @@
       "url": "process/all",
       "params":[]
     }
+  },
+  {
+    "name": "local-postgres-backup/backup",
+    "service": "local-postgres-backup",
+    "dayOfWeek": [0,1,2,3,4,5,6],
+    "hour": 23,
+    "minute": 30,
+    "query": {
+      "url": "backup",
+      "params":[]
+    }
   }
 ]
