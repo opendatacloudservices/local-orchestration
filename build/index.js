@@ -10,6 +10,7 @@ const fs = require("fs");
 // get environmental variables
 dotenv.config({ path: path.join(__dirname, '../.env') });
 const local_microservice_1 = require("local-microservice");
+const local_logger_1 = require("local-logger");
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, process.env.CONFIG || 'config.json'), 'utf8'));
 exports.schedules = [];
 exports.runJob = (app, trans) => {
@@ -33,16 +34,16 @@ exports.runJob = (app, trans) => {
         .then(json => {
         // see log file
         console.log(new Date(), url, json);
-        trans.end('success');
+        trans(true, { message: 'success' });
         return Promise.resolve();
     })
         .catch(err => {
-        local_microservice_1.logError(err);
-        trans.end('error');
+        local_logger_1.logError(err);
+        trans(false, { message: 'error' });
         return Promise.reject();
     });
 };
-const initTrans = local_microservice_1.startTransaction({
+const initTrans = local_logger_1.startTransaction({
     type: 'system',
     name: 'setup',
 });
@@ -65,18 +66,18 @@ try {
         }
         app.port = port;
         exports.schedules.push(schedule.scheduleJob(app.name, rule, () => {
-            const trans = local_microservice_1.startTransaction({
+            const trans = local_logger_1.startTransaction({
                 type: 'schedule',
                 name: app.name,
             });
             exports.runJob(app, trans);
         }));
     });
-    initTrans.end('success');
+    initTrans(true, { message: 'success' });
 }
 catch (err) {
-    local_microservice_1.logError(err);
-    initTrans.end('error');
+    local_logger_1.logError(err);
+    initTrans(false, { message: 'error' });
 }
 /**
  * @swagger
@@ -101,7 +102,8 @@ catch (err) {
  *         description: Drop completed
  */
 local_microservice_1.api.get('/task/:taskName', async (req, res) => {
-    const trans = local_microservice_1.startTransaction({
+    const trans = local_logger_1.startTransaction({
+        ...local_logger_1.localTokens(res),
         type: 'get',
         name: 'task/' + req.params.taskName,
     });
@@ -113,8 +115,8 @@ local_microservice_1.api.get('/task/:taskName', async (req, res) => {
         const err = new Error('task requires a param /task/:taskName that is included in the config: ' +
             req.params.taskName);
         res.status(500).json({ error: err.message });
-        local_microservice_1.logError(err);
-        trans.end('error');
+        local_logger_1.logError(err);
+        trans(false, { message: 'error' });
     }
 });
 local_microservice_1.catchAll();

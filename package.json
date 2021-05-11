@@ -28,8 +28,9 @@
   "homepage": "https://github.com/opendatacloudservices/local-orchestration#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "local-pm2-config": "file:../local-pm2-config",
+    "local-logger": "file:../local-logger",
     "local-microservice": "file:../local-microservice",
+    "local-pm2-config": "file:../local-pm2-config",
     "node-fetch": "^2.6.1",
     "node-schedule": "^1.3.2",
     "path": "^0.12.7"

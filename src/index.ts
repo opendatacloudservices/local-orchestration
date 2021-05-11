@@ -8,7 +8,13 @@ import * as fs from 'fs';
 // get environmental variables
 dotenv.config({path: path.join(__dirname, '../.env')});
 
-import {api, catchAll, logError, startTransaction} from 'local-microservice';
+import {api, catchAll} from 'local-microservice';
+import {
+  logError,
+  startTransaction,
+  Transaction,
+  localTokens,
+} from 'local-logger';
 
 const config = JSON.parse(
   fs.readFileSync(
@@ -31,10 +37,7 @@ export interface App {
 }
 
 export const schedules: schedule.Job[] = [];
-export const runJob = (
-  app: App,
-  trans: {end: (result: string) => void; id: () => string}
-): Promise<void> => {
+export const runJob = (app: App, trans: Transaction): Promise<void> => {
   const url =
     `http://localhost:${app.port}` +
     `/${app.query.url}` +
@@ -56,12 +59,12 @@ export const runJob = (
     .then(json => {
       // see log file
       console.log(new Date(), url, json);
-      trans.end('success');
+      trans(true, {message: 'success'});
       return Promise.resolve();
     })
     .catch(err => {
       logError(err);
-      trans.end('error');
+      trans(false, {message: 'error'});
       return Promise.reject();
     });
 };
@@ -105,10 +108,10 @@ try {
       })
     );
   });
-  initTrans.end('success');
+  initTrans(true, {message: 'success'});
 } catch (err) {
   logError(err);
-  initTrans.end('error');
+  initTrans(false, {message: 'error'});
 }
 
 /**
@@ -135,6 +138,7 @@ try {
  */
 api.get('/task/:taskName', async (req, res) => {
   const trans = startTransaction({
+    ...localTokens(res),
     type: 'get',
     name: 'task/' + req.params.taskName,
   });
@@ -148,7 +152,7 @@ api.get('/task/:taskName', async (req, res) => {
     );
     res.status(500).json({error: err.message});
     logError(err);
-    trans.end('error');
+    trans(false, {message: 'error'});
   }
 });
 
