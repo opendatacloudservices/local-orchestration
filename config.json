@@ -2,9 +2,9 @@
   {
     "name": "local-ckan-harvester/process/all",
     "service": "local-ckan-harvester",
-    "dayOfWeek": [4],
+    "dayOfWeek": [2],
     "hour": 16,
-    "minute": 46,
+    "minute": 0,
     "query": {
       "url": "process/all",
       "params":[]
@@ -29,6 +29,17 @@
     "minute": 30,
     "query": {
       "url": "import/all",
+      "params":[]
+    }
+  },
+  {
+    "name": "local-download-data/download-all",
+    "service": "local-download-data",
+    "dayOfWeek": [0,1,2,3,4,5,6],
+    "hour": 3,
+    "minute": 0,
+    "query": {
+      "url": "download/all",
       "params":[]
     }
   }

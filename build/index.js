@@ -12,9 +12,14 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 const local_microservice_1 = require("local-microservice");
 const local_logger_1 = require("local-logger");
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, process.env.CONFIG || 'config.json'), 'utf8'));
+const orchestrationId = local_logger_1.uuid();
+local_logger_1.logInfo({
+    token: orchestrationId,
+    message: 'orchestration started',
+});
 exports.schedules = [];
-exports.runJob = (app, trans) => {
-    const url = `http://localhost:${app.port}` +
+exports.runJob = (app, trans, res) => {
+    let url = `http://localhost:${app.port}` +
         `/${app.query.url}` +
         `${app.query.params.length > 0 ? '?' : ''}` +
         `${app.query.params
@@ -22,6 +27,17 @@ exports.runJob = (app, trans) => {
             return `${param.key}=${param.value}`;
         })
             .join('&')}`;
+    if (res) {
+        url = local_logger_1.addToken(url, res);
+    }
+    else {
+        if (url.indexOf('?') !== -1) {
+            url += '&' + local_logger_1.tokenUrl(orchestrationId);
+        }
+        else {
+            url += '?' + local_logger_1.tokenUrl(orchestrationId);
+        }
+    }
     return node_fetch_1.default(url)
         .then(res => {
         if (res.status >= 200 && res.status < 300) {
@@ -108,7 +124,7 @@ local_microservice_1.api.get('/task/:taskName', async (req, res) => {
         name: 'task/' + req.params.taskName,
     });
     if ('taskName' in req.params && req.params.taskName in taskMap) {
-        await exports.runJob(config[taskMap[req.params.taskName]], trans);
+        await exports.runJob(config[taskMap[req.params.taskName]], trans, res);
         res.status(200).json({ message: 'Task called' });
     }
     else {

@@ -1,4 +1,5 @@
 import * as schedule from 'node-schedule';
+import { Response } from 'express';
 import { Transaction } from 'local-logger';
 export interface App {
     name: string;
@@ -16,4 +17,4 @@ export interface App {
     };
 }
 export declare const schedules: schedule.Job[];
-export declare const runJob: (app: App, trans: Transaction) => Promise<void>;
+export declare const runJob: (app: App, trans: Transaction, res?: Response<any, Record<string, any>> | undefined) => Promise<void>;

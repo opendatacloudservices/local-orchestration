@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
+import {Response} from 'express';
 
 // get environmental variables
 dotenv.config({path: path.join(__dirname, '../.env')});
@@ -14,6 +15,10 @@ import {
   startTransaction,
   Transaction,
   localTokens,
+  addToken,
+  uuid,
+  logInfo,
+  tokenUrl,
 } from 'local-logger';
 
 const config = JSON.parse(
@@ -36,9 +41,19 @@ export interface App {
   };
 }
 
+const orchestrationId = uuid();
+logInfo({
+  token: orchestrationId,
+  message: 'orchestration started',
+});
+
 export const schedules: schedule.Job[] = [];
-export const runJob = (app: App, trans: Transaction): Promise<void> => {
-  const url =
+export const runJob = (
+  app: App,
+  trans: Transaction,
+  res?: Response
+): Promise<void> => {
+  let url =
     `http://localhost:${app.port}` +
     `/${app.query.url}` +
     `${app.query.params.length > 0 ? '?' : ''}` +
@@ -47,6 +62,16 @@ export const runJob = (app: App, trans: Transaction): Promise<void> => {
         return `${param.key}=${param.value}`;
       })
       .join('&')}`;
+
+  if (res) {
+    url = addToken(url, res);
+  } else {
+    if (url.indexOf('?') !== -1) {
+      url += '&' + tokenUrl(orchestrationId);
+    } else {
+      url += '?' + tokenUrl(orchestrationId);
+    }
+  }
 
   return fetch(url)
     .then(res => {
@@ -143,7 +168,7 @@ api.get('/task/:taskName', async (req, res) => {
     name: 'task/' + req.params.taskName,
   });
   if ('taskName' in req.params && req.params.taskName in taskMap) {
-    await runJob(config[taskMap[req.params.taskName]], trans);
+    await runJob(config[taskMap[req.params.taskName]], trans, res);
     res.status(200).json({message: 'Task called'});
   } else {
     const err = new Error(
