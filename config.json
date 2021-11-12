@@ -11,6 +11,17 @@
     }
   },
   {
+    "name": "local-csw-harvester/process/all",
+    "service": "local-csw-harvester",
+    "dayOfWeek": [2],
+    "hour": 16,
+    "minute": 0,
+    "query": {
+      "url": "process/all",
+      "params":[]
+    }
+  },
+  {
     "name": "local-postgres-backup/backup",
     "service": "local-postgres-backup",
     "dayOfWeek": [0,1,2,3,4,5,6],

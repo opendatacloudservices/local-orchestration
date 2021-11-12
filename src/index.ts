@@ -135,7 +135,7 @@ try {
   });
   initTrans(true, {message: 'success'});
 } catch (err) {
-  logError(err);
+  logError({message: err});
   initTrans(false, {message: 'error'});
 }
 
