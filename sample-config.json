@@ -1,0 +1,13 @@
+[
+  {
+    "name": "local-ckan-harvester/process/all",
+    "service": "local-ckan-harvester",
+    "dayOfWeek": [2],
+    "hour": 16,
+    "minute": 0,
+    "query": {
+      "url": "process/all",
+      "params":[]
+    }
+  }
+]

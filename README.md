@@ -1,6 +1,8 @@
 # local-orchestration
 central management of tasks
 
+Basically a nodejs-based cron job tool
+
 ## Timestamp
 
 ```
