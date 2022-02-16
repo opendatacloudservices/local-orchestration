@@ -1,6 +1,6 @@
 import * as schedule from 'node-schedule';
-import { Response } from 'express';
-import { Transaction } from 'local-logger';
+import type { Response } from 'express';
+import { Transaction } from '@opendatacloudservices/local-logger';
 export interface App {
     name: string;
     dayOfWeek: number[];

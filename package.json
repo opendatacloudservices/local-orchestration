@@ -1,5 +1,5 @@
 {
-  "name": "local-orchestration",
+  "name": "@opendatacloudservices/local-orchestration",
   "version": "1.0.0",
   "description": "central management of tasks",
   "types": "/build/index.d.ts",

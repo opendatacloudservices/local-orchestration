@@ -1,15 +1,15 @@
 import * as schedule from 'node-schedule';
-import * as pm2 from 'local-pm2-config';
+import * as pm2 from '@opendatacloudservices/local-pm2-config';
 import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
-import {Response} from 'express';
+import type {Response} from 'express';
 
 // get environmental variables
 dotenv.config({path: path.join(__dirname, '../.env')});
 
-import {api, catchAll} from 'local-microservice';
+import {api, catchAll} from '@opendatacloudservices/local-microservice';
 import {
   logError,
   startTransaction,
@@ -19,7 +19,7 @@ import {
   uuid,
   logInfo,
   tokenUrl,
-} from 'local-logger';
+} from '@opendatacloudservices/local-logger';
 
 const config = JSON.parse(
   fs.readFileSync(
